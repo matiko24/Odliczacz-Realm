@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- grayscale  -->
+    <color name="gray_very_dark">#111111</color>
+    <color name="gray_dark">#222222</color>
+    <color name="gray_light">#cfd8dc</color>
+
+    <!-- greenscale -->
+    <color name="green">#4caf50</color>
+    <color name="green_light">#80e27e</color>
+</resources>

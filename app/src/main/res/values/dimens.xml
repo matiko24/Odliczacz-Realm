@@ -1,0 +1,17 @@
+<resources>
+
+    <!--  font sizes    -->
+    <dimen name="font_large">25sp</dimen>
+    <dimen name="font_normal">20sp</dimen>
+
+    <!--  typical spacing between two views  -->
+    <dimen name="spacing_huge">40dp</dimen>
+    <dimen name="spacing_large">20dp</dimen>
+    <dimen name="spacing_normal">15dp</dimen>
+    <dimen name="spacing_small">5dp</dimen>
+
+    <!-- divider size  -->
+    <dimen name="divider_large">16sp</dimen>
+    <dimen name="divider_normal">10sp</dimen>
+
+</resources>
