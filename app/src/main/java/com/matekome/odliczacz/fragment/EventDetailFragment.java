@@ -39,6 +39,8 @@ import org.joda.time.Years;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+import java.util.Date;
+
 public class EventDetailFragment extends Fragment {
 
     TextView tvEventDate;
@@ -50,7 +52,15 @@ public class EventDetailFragment extends Fragment {
     ImageButton imbtSaveEventOccurenceDescription;
     Event event;
     EventOccurrence displayedEventOccurrence;
-    EventDao dao = new EventDao();
+    EventDao dao;
+    int eventId;
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        eventId = getActivity().getIntent().getExtras().getInt("eventId");
+        dao = new EventDao();
+    }
 
     @Nullable
     @Override
@@ -58,17 +68,14 @@ public class EventDetailFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_event_details, container, false);
 
         findViews(view);
-
-        int eventId = getActivity().getIntent().getExtras().getInt("eventId");
         initializeEvent(eventId);
 
         imbtSaveEventOccurenceDescription.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String newDescription = etvEventDescription.getText().toString();
-                updateDisplayedEventOccurrenceDescription(newDescription);
+                updateEventOccurrenceDescription(newDescription);
 
-                etvEventDescription.clearFocus();
                 hideKeyboard();
             }
         });
@@ -87,7 +94,7 @@ public class EventDetailFragment extends Fragment {
         return view;
     }
 
-    private void updateDisplayedEventOccurrenceDescription(String newDescription) {
+    private void updateEventOccurrenceDescription(String newDescription) {
         displayedEventOccurrence.setDescription(newDescription);
         dao.udpateEventOccurence(displayedEventOccurrence);
     }
@@ -154,10 +161,10 @@ public class EventDetailFragment extends Fragment {
         alertDialog.show();
     }
 
-    public void setDifferenceBetweenTodayAndEventOccurrence(String eventDate) {
+    public void setDifferenceBetweenTodayAndEventOccurrence(Date eventDate) {
         int position = spinnerUniteOfTime.getSelectedItemPosition();
         DateTime dtCurrentDate = new DateTime();
-        DateTime dtEventDate = DateTime.parse(eventDate);
+        DateTime dtEventDate = new DateTime(eventDate);
         String textToSet = "";
         switch (position) {
             case 0:
@@ -205,10 +212,10 @@ public class EventDetailFragment extends Fragment {
     public void setEventDetails(EventOccurrence eventOccurrence) {
         displayedEventOccurrence = eventOccurrence;
 
-        String occurrenceDate = eventOccurrence.getDate();
+        Date occurrenceDate = eventOccurrence.getDate();
         String occurrenceDescription = eventOccurrence.getDescription();
 
-        DateTime dtEventDate = DateTime.parse(occurrenceDate);
+        DateTime dtEventDate = new DateTime(occurrenceDate);
         DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("dd.MM.YYYY HH:mm");
         tvEventDate.setText(dtEventDate.toString(dateTimeFormatter));
 
@@ -246,7 +253,7 @@ public class EventDetailFragment extends Fragment {
                 }
 
                 DateTime userSetDate = new DateTime(datePicker.getYear(), datePicker.getMonth() + 1, datePicker.getDayOfMonth(), selectedHour, selectedMinute);
-                dao.addEventOccurrence(event, userSetDate.toString());
+                dao.addEventOccurrence(event, userSetDate.toDate());
                 setLastEventOccurrenceValues();
             }
 
@@ -273,8 +280,15 @@ public class EventDetailFragment extends Fragment {
     }
 
     private void hideKeyboard() {
+        etvEventDescription.clearFocus();
         InputMethodManager inputManager = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
         inputManager.hideSoftInputFromWindow(getActivity().getCurrentFocus().getWindowToken(),
                 InputMethodManager.HIDE_NOT_ALWAYS);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        dao.close();
     }
 }

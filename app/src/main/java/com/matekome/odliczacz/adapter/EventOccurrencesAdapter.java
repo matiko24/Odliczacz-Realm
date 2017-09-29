@@ -18,63 +18,88 @@ import org.joda.time.DateTime;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
 
+import java.util.Date;
+
 import io.realm.OrderedRealmCollection;
 import io.realm.Realm;
 import io.realm.RealmBaseAdapter;
 
 public class EventOccurrencesAdapter extends RealmBaseAdapter<EventOccurrenceRealm> {
-    EventDetailFragment fragment;
+    private EventDetailFragment fragment;
+    private Context context;
 
-    public EventOccurrencesAdapter(@Nullable OrderedRealmCollection<EventOccurrenceRealm> data, EventDetailFragment fragment) {
+    private static class ViewHolder {
+        TextView date;
+        ImageButton delete;
+    }
+
+    public EventOccurrencesAdapter(Context context, @Nullable OrderedRealmCollection<EventOccurrenceRealm> data, EventDetailFragment fragment) {
         super(data);
         this.fragment = fragment;
+        this.context = context;
     }
 
     @Override
     public View getView(final int i, View view, ViewGroup viewGroup) {
-        final Context context = viewGroup.getContext();
-        view = LayoutInflater.from(context).inflate(R.layout.row_event_occurrence, viewGroup, false);
+        ViewHolder viewHolder;
 
-        final EventOccurrenceRealm eventOccurrence = adapterData.get(i);
-        String dateString = eventOccurrence.getDate();
+        if (view == null) {
+            view = LayoutInflater.from(context).inflate(R.layout.row_event_occurrence, viewGroup, false);
+            viewHolder = new ViewHolder();
+            viewHolder.date = (TextView) view.findViewById(R.id.event_history);
+            viewHolder.delete = (ImageButton) view.findViewById(R.id.delete_button);
+            view.setTag(viewHolder);
+        } else {
+            viewHolder = (ViewHolder) view.getTag();
+        }
 
-        TextView date = (TextView) view.findViewById(R.id.event_history);
-        ImageButton delete = (ImageButton) view.findViewById(R.id.delete_button);
+        if (adapterData != null) {
+            final EventOccurrenceRealm eventOccurrence = adapterData.get(i);
+            Date eventOccurrenceDate = eventOccurrence.getDate();
+            DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("dd.MM.YYYY HH:mm");
+            DateTime eventDate = new DateTime(eventOccurrenceDate);
 
-        DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("dd.MM.YYYY HH:mm");
-        DateTime eventDate = DateTime.parse(dateString);
+            viewHolder.date.setText(eventDate.toString(dateTimeFormatter));
 
-        date.setText(eventDate.toString(dateTimeFormatter));
+            viewHolder.delete.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
+                    alertDialogBuilder.setMessage(context.getString(R.string.delete_confirmation)).setCancelable(false).setPositiveButton(context.getString(R.string.yes), new DialogInterface.OnClickListener() {
 
-        delete.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(context);
-                alertDialogBuilder.setMessage(context.getString(R.string.delete_confirmation)).setCancelable(false).setPositiveButton(context.getString(R.string.yes), new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
 
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
+                            Realm realm = Realm.getDefaultInstance();
+                            realm.executeTransaction(new Realm.Transaction() {
+                                @Override
+                                public void execute(Realm realm) {
+                                    adapterData.deleteFromRealm(i);
+                                }
+                            });
+                            fragment.setLastEventOccurrenceValues();
 
-                        Realm realm = Realm.getDefaultInstance();
-                        realm.executeTransaction(new Realm.Transaction() {
-                            @Override
-                            public void execute(Realm realm) {
-                                adapterData.deleteFromRealm(i);
-                            }
-                        });
-                        fragment.setLastEventOccurrenceValues();
+                        }
+                    }).setNegativeButton(context.getString(R.string.no), new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.cancel();
+                        }
+                    });
+                    AlertDialog alertDialog = alertDialogBuilder.create();
+                    alertDialog.show();
+                }
+            });
 
-                    }
-                }).setNegativeButton(context.getString(R.string.no), new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-                    }
-                });
-                AlertDialog alertDialog = alertDialogBuilder.create();
-                alertDialog.show();
-            }
-        });
+        }
+
+
+
+
+
+
+
+
 
         return view;
     }

@@ -30,35 +30,30 @@ import com.matekome.odliczacz.data.realm.EventRealm;
 
 import org.joda.time.DateTime;
 
-import io.realm.Realm;
-import io.realm.RealmConfiguration;
+import java.util.Date;
 
 public class EventsFragment extends ListFragment {
     EventsAdapter adapter;
+    EventDao dao;
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        dao = new EventDao();
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_events_list, container, false);
-
-        Realm.init(getContext());
-        RealmConfiguration realmConfig = new RealmConfiguration.Builder().name("odliczacz.realm").build();
-        //Realm.deleteRealm(realmConfig);
-        Realm.init(getContext());
-        Realm.setDefaultConfiguration(realmConfig);
-
-        EventDao dao = new EventDao();
-        adapter = new EventsAdapter(dao.getAllEvents());
-        setListAdapter(adapter);
-
         return view;
-    }
-
-    public void refreshEvents() {
     }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+
+        adapter = new EventsAdapter(dao.getAllEvents());
+        setListAdapter(adapter);
 
         getListView().setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
@@ -87,6 +82,16 @@ public class EventsFragment extends ListFragment {
 
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        dao.close();
+    }
+
+    public void refreshEvents() {
+    }
+
+    //Todo: DialogFragment
     public void showAddNewEventInputDialogTo() {
         LayoutInflater layoutInflater = LayoutInflater.from(getContext());
         View promptView = layoutInflater.inflate(R.layout.dialog_add_event, null);
@@ -142,7 +147,7 @@ public class EventsFragment extends ListFragment {
                             selectedMinute = timePicker.getCurrentMinute();
                         }
                         DateTime userSetDate = new DateTime(datePicker.getYear(), datePicker.getMonth() + 1, datePicker.getDayOfMonth(), selectedHour, selectedMinute);
-                        newEvent.getEventOccurrences().add(new EventOccurrence(userSetDate.toString()));
+                        newEvent.getEventOccurrences().add(new EventOccurrence(userSetDate.toDate()));
                     }
                     dao.insertNewEvent(newEvent);
                     refreshEvents();
@@ -161,8 +166,8 @@ public class EventsFragment extends ListFragment {
         alert.show();
     }
 
-    private String getCurrentData() {
-        return new DateTime().toString();
+    private Date getCurrentData() {
+        return new Date();
     }
 
 }

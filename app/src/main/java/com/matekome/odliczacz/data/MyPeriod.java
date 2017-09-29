@@ -6,10 +6,12 @@ import org.joda.time.DateTime;
 import org.joda.time.Period;
 import org.joda.time.PeriodType;
 
+import java.util.Date;
+
 public class MyPeriod {
 
-    public static String getPeriodToDisplay(String eventDateString) {
-        DateTime eventDateDateTime = DateTime.parse(eventDateString);
+    public static String getPeriodToDisplay(Date eventDateString) {
+        DateTime eventDateDateTime = new DateTime(eventDateString);
         DateTime currentDate = new DateTime();
 
         Period differenceBetweenDates;
@@ -72,7 +74,7 @@ public class MyPeriod {
         int minuteLastNumber = (int) minute % 10;
         if (minute == 1)
             minuteString += "minuta ";
-        else if (minuteLastNumber < 5 && minuteLastNumber != 0)
+        else if (minuteLastNumber < 5 && minuteLastNumber > 1)
             minuteString += "minuty ";
         else
             minuteString += "minut ";

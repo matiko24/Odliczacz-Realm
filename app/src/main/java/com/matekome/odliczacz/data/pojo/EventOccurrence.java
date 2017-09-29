@@ -1,19 +1,21 @@
 package com.matekome.odliczacz.data.pojo;
 
+import java.util.Date;
+
 public class EventOccurrence {
-    private String date;
+    private Date date;
     private String description;
 
-    public EventOccurrence(String date) {
+    public EventOccurrence(Date date) {
         this.date = date;
         this.description = "";
     }
 
-    public String getDate() {
+    public Date getDate() {
         return date;
     }
 
-    public void setDate(String date) {
+    public void setDate(Date date) {
         this.date = date;
     }
 

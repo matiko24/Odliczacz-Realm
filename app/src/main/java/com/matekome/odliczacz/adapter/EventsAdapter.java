@@ -10,25 +10,39 @@ import com.matekome.odliczacz.R;
 import com.matekome.odliczacz.data.MyPeriod;
 import com.matekome.odliczacz.data.realm.EventRealm;
 
-import io.realm.OrderedRealmCollection;
 import io.realm.RealmBaseAdapter;
+import io.realm.RealmResults;
 
 public class EventsAdapter extends RealmBaseAdapter<EventRealm> {
-    public EventsAdapter(@Nullable OrderedRealmCollection data) {
+
+    private static class ViewHolder {
+        TextView eventName;
+        TextView eventDate;
+    }
+
+    public EventsAdapter(@Nullable RealmResults<EventRealm> data) {
         super(data);
     }
 
     @Override
-    public View getView(int i, View view, ViewGroup viewGroup) {
-        view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.row_event, viewGroup, false);
+    public View getView(int position, View view, ViewGroup viewGroup) {
+        ViewHolder viewHolder;
 
-        EventRealm event = adapterData.get(i);
+        if (view == null) {
+            view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.row_event, viewGroup, false);
+            viewHolder = new ViewHolder();
+            viewHolder.eventName = (TextView) view.findViewById(R.id.event_name);
+            viewHolder.eventDate = (TextView) view.findViewById(R.id.event_elapsed_time);
+            view.setTag(viewHolder);
+        } else {
+            viewHolder = (ViewHolder) view.getTag();
+        }
 
-        TextView eventName = (TextView) view.findViewById(R.id.event_name);
-        TextView eventDate = (TextView) view.findViewById(R.id.event_elapsed_time);
-
-        eventName.setText(event.getName());
-        eventDate.setText(MyPeriod.getPeriodToDisplay(event.getEventOccurrences().last().getDate()));
+        if (adapterData != null) {
+            EventRealm event = adapterData.get(position);
+            viewHolder.eventName.setText(event.getName());
+            viewHolder.eventDate.setText(MyPeriod.getPeriodToDisplay(event.getEventOccurrences().last().getDate()));
+        }
 
         return view;
     }

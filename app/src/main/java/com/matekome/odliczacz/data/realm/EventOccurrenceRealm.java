@@ -1,18 +1,20 @@
 package com.matekome.odliczacz.data.realm;
 
+import java.util.Date;
+
 import io.realm.RealmObject;
 
 public class EventOccurrenceRealm extends RealmObject {
-    private String date;
+    private Date date;
     private String description;
 
     public EventOccurrenceRealm() {}
 
-    public String getDate() {
+    public Date getDate() {
         return date;
     }
 
-    public void setDate(String date) {
+    public void setDate(Date date) {
         this.date = date;
     }
 

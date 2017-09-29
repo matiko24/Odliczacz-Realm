@@ -1,5 +1,7 @@
 package com.matekome.odliczacz.fragment;
 
+import android.app.Activity;
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ListFragment;
@@ -19,9 +21,29 @@ import io.realm.RealmList;
 public class EventOccurrenceFragment extends ListFragment {
 
     EventOccurrencesAdapter adapter;
-    RealmList<EventOccurrenceRealm> eventOccurrences;
     int eventId;
-    EventDao dao = new EventDao();
+    EventDao dao;
+    OnEventOccurrenceSelectedListener mCallback;
+
+    public interface OnEventOccurrenceSelectedListener {
+        void onEventOccurrenceSelected(EventOccurrence eventOccurrence);
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+
+        if (context instanceof Activity) {
+            mCallback = (OnEventOccurrenceSelectedListener) context;
+        }
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        eventId = getActivity().getIntent().getExtras().getInt("eventId");
+        dao = new EventDao();
+    }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -33,22 +55,25 @@ public class EventOccurrenceFragment extends ListFragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        eventId = getActivity().getIntent().getExtras().getInt("eventId");
-
-        eventOccurrences = dao.getEventOccurrencesByEventId(eventId);
-
+        RealmList<EventOccurrenceRealm> eventOccurrences = dao.getEventOccurrencesByEventId(eventId);
         EventDetailFragment fragment = (EventDetailFragment) getActivity().getSupportFragmentManager().findFragmentById(R.id.event_detail_fragment);
-        adapter = new EventOccurrencesAdapter(eventOccurrences, fragment);
 
+        adapter = new EventOccurrencesAdapter(getContext(), eventOccurrences, fragment);
         setListAdapter(adapter);
     }
 
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
-        EventDetailFragment fragment = (EventDetailFragment) getActivity().getSupportFragmentManager().findFragmentById(R.id.event_detail_fragment);
         EventOccurrenceRealm eventOccurrenceRealm = adapter.getItem(position);
         EventOccurrence eventOccurrence = new EventOccurrence(eventOccurrenceRealm.getDate());
         eventOccurrence.setDescription(eventOccurrenceRealm.getDescription());
-        fragment.setEventDetails(eventOccurrence);
+
+        mCallback.onEventOccurrenceSelected(eventOccurrence);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        dao.close();
     }
 }

@@ -9,14 +9,19 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.matekome.odliczacz.R;
+import com.matekome.odliczacz.data.pojo.EventOccurrence;
 import com.matekome.odliczacz.fragment.EventDetailFragment;
+import com.matekome.odliczacz.fragment.EventOccurrenceFragment;
 
-public class EventDetailActivity extends AppCompatActivity {
+public class EventDetailActivity extends AppCompatActivity implements EventOccurrenceFragment.OnEventOccurrenceSelectedListener {
+
+    EventDetailFragment eventDetailFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_event_detail);
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -31,6 +36,8 @@ public class EventDetailActivity extends AppCompatActivity {
                 onBackPressed();
             }
         });
+
+        eventDetailFragment = (EventDetailFragment) getSupportFragmentManager().findFragmentById(R.id.event_detail_fragment);
     }
 
     @Override
@@ -41,17 +48,15 @@ public class EventDetailActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        //Todo: Prawo demeter
-        EventDetailFragment fragment = (EventDetailFragment) getSupportFragmentManager().findFragmentById(R.id.event_detail_fragment);
         switch (item.getItemId()) {
             case R.id.add:
-                fragment.showAddEventOccurenceDialog();
+                eventDetailFragment.showAddEventOccurenceDialog();
                 break;
             case R.id.settings:
-                fragment.showEditingEventNameDialog();
+                eventDetailFragment.showEditingEventNameDialog();
                 break;
             case R.id.delete:
-                fragment.showDeleteEventDialog();
+                eventDetailFragment.showDeleteEventDialog();
                 break;
         }
         return super.onOptionsItemSelected(item);
@@ -63,4 +68,8 @@ public class EventDetailActivity extends AppCompatActivity {
         startActivity(intent);
     }
 
+    @Override
+    public void onEventOccurrenceSelected(EventOccurrence eventOccurrence) {
+        eventDetailFragment.setEventDetails(eventOccurrence);
+    }
 }

@@ -5,6 +5,8 @@ import com.matekome.odliczacz.data.pojo.EventOccurrence;
 import com.matekome.odliczacz.data.realm.EventOccurrenceRealm;
 import com.matekome.odliczacz.data.realm.EventRealm;
 
+import java.util.Date;
+
 import io.realm.Realm;
 import io.realm.RealmList;
 import io.realm.RealmResults;
@@ -16,7 +18,6 @@ public class EventDao {
         realm = Realm.getDefaultInstance();
     }
 
-    //Todo: użyć
     public void close() {
         realm.close();
     }
@@ -32,7 +33,7 @@ public class EventDao {
         return eventMapper.fromRealm(eventRealm);
     }
 
-    public Event getEventByName(String name) {
+    private Event getEventByName(String name) {
         EventRealm eventRealm = realm.where(EventRealm.class).equalTo("name", name).findFirst();
         if (eventRealm != null)
             return new EventMapper().fromRealm(eventRealm);
@@ -59,7 +60,7 @@ public class EventDao {
         return eventRealm.getEventOccurrences();
     }
 
-    public void addEventOccurrence(Event event, String date) {
+    public void addEventOccurrence(Event event, Date date) {
         EventRealm eventRealm = realm.where(EventRealm.class).equalTo("id", event.getId()).findFirst();
 
         realm.beginTransaction();

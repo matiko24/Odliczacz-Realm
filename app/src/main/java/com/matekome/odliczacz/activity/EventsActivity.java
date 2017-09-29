@@ -30,7 +30,6 @@ public class EventsActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        //Todo: prawo demeter
         EventsFragment fragment = (EventsFragment) getSupportFragmentManager().findFragmentById(R.id.events_fragment);
 
         switch (item.getItemId()) {
