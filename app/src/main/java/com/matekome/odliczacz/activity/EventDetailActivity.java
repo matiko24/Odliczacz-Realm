@@ -1,6 +1,5 @@
 package com.matekome.odliczacz.activity;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -13,16 +12,19 @@ import com.matekome.odliczacz.data.pojo.EventOccurrence;
 import com.matekome.odliczacz.fragment.EventDetailFragment;
 import com.matekome.odliczacz.fragment.EventOccurrenceFragment;
 
-public class EventDetailActivity extends AppCompatActivity implements EventOccurrenceFragment.OnEventOccurrenceSelectedListener {
+import butterknife.BindView;
+import butterknife.ButterKnife;
 
+public class EventDetailActivity extends AppCompatActivity implements EventOccurrenceFragment.OnEventOccurrenceSelectedListener {
+    @BindView(R.id.toolbar)
+    Toolbar toolbar;
     EventDetailFragment eventDetailFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_event_detail);
-
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        ButterKnife.bind(this);
         setSupportActionBar(toolbar);
 
         if (getSupportActionBar() != null) {
@@ -33,7 +35,7 @@ public class EventDetailActivity extends AppCompatActivity implements EventOccur
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                onBackPressed();
+                finish();
             }
         });
 
@@ -60,12 +62,6 @@ public class EventDetailActivity extends AppCompatActivity implements EventOccur
                 break;
         }
         return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    public void onBackPressed() {
-        Intent intent = new Intent(this, EventsActivity.class);
-        startActivity(intent);
     }
 
     @Override

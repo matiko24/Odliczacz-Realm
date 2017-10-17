@@ -20,6 +20,8 @@ import org.joda.time.format.DateTimeFormatter;
 
 import java.util.Date;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import io.realm.OrderedRealmCollection;
 import io.realm.Realm;
 import io.realm.RealmBaseAdapter;
@@ -28,9 +30,15 @@ public class EventOccurrencesAdapter extends RealmBaseAdapter<EventOccurrenceRea
     private EventDetailFragment fragment;
     private Context context;
 
-    private static class ViewHolder {
+    static class ViewHolder {
+        @BindView(R.id.event_history)
         TextView date;
+        @BindView(R.id.delete_button)
         ImageButton delete;
+
+        public ViewHolder(View view) {
+            ButterKnife.bind(this, view);
+        }
     }
 
     public EventOccurrencesAdapter(Context context, @Nullable OrderedRealmCollection<EventOccurrenceRealm> data, EventDetailFragment fragment) {
@@ -45,9 +53,7 @@ public class EventOccurrencesAdapter extends RealmBaseAdapter<EventOccurrenceRea
 
         if (view == null) {
             view = LayoutInflater.from(context).inflate(R.layout.row_event_occurrence, viewGroup, false);
-            viewHolder = new ViewHolder();
-            viewHolder.date = (TextView) view.findViewById(R.id.event_history);
-            viewHolder.delete = (ImageButton) view.findViewById(R.id.delete_button);
+            viewHolder = new ViewHolder(view);
             view.setTag(viewHolder);
         } else {
             viewHolder = (ViewHolder) view.getTag();
@@ -77,7 +83,10 @@ public class EventOccurrencesAdapter extends RealmBaseAdapter<EventOccurrenceRea
                                     adapterData.deleteFromRealm(i);
                                 }
                             });
-                            fragment.setLastEventOccurrenceValues();
+
+                            if (adapterData.size() > 0)
+                                fragment.setLastEventOccurrenceValues();
+                            //Todo: usuń całe wydarzenie jeśli ostatnie wystąpienie jest usunięte
 
                         }
                     }).setNegativeButton(context.getString(R.string.no), new DialogInterface.OnClickListener() {
@@ -92,15 +101,6 @@ public class EventOccurrencesAdapter extends RealmBaseAdapter<EventOccurrenceRea
             });
 
         }
-
-
-
-
-
-
-
-
-
         return view;
     }
 }

@@ -1,22 +1,15 @@
 package com.matekome.odliczacz.fragment;
 
-import android.content.DialogInterface;
+import android.annotation.SuppressLint;
 import android.content.Intent;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ListFragment;
-import android.support.v7.app.AlertDialog;
-import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.CheckBox;
-import android.widget.CompoundButton;
-import android.widget.DatePicker;
-import android.widget.EditText;
-import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.matekome.odliczacz.R;
@@ -25,26 +18,34 @@ import com.matekome.odliczacz.adapter.EventsAdapter;
 import com.matekome.odliczacz.data.db.EventDao;
 import com.matekome.odliczacz.data.db.EventMapper;
 import com.matekome.odliczacz.data.pojo.Event;
-import com.matekome.odliczacz.data.pojo.EventOccurrence;
 import com.matekome.odliczacz.data.realm.EventRealm;
-
-import org.joda.time.DateTime;
 
 import java.util.Date;
 
+@SuppressLint("ValidFragment")
 public class EventsFragment extends ListFragment {
     EventsAdapter adapter;
-    EventDao dao;
+    EventDao dao = new EventDao();
+    boolean showPrivateEvents;
+
+    public EventsFragment() {
+    }
+
+    public EventsFragment(boolean showPrivateEvents) {
+        this.showPrivateEvents = showPrivateEvents;
+    }
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        dao = new EventDao();
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_events_list, container, false);
+        adapter = new EventsAdapter(dao.getAllEvents(showPrivateEvents));
+        setListAdapter(adapter);
+        Log.d("Events fragment : ", String.valueOf(showPrivateEvents));
         return view;
     }
 
@@ -52,14 +53,10 @@ public class EventsFragment extends ListFragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        adapter = new EventsAdapter(dao.getAllEvents());
-        setListAdapter(adapter);
-
         getListView().setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
 
-                EventDao dao = new EventDao();
                 EventMapper mapper = new EventMapper();
                 Event event = mapper.fromRealm(adapter.getItem(position));
                 dao.addEventOccurrence(event, getCurrentData());
@@ -68,13 +65,15 @@ public class EventsFragment extends ListFragment {
                 return true;
             }
         });
+
         getListView().setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent intent = new Intent(getActivity(), EventDetailActivity.class);
                 EventRealm eventRealm = (EventRealm) getListAdapter().getItem(position);
                 EventMapper mapper = new EventMapper();
                 Event event = mapper.fromRealm(eventRealm);
+
+                Intent intent = new Intent(getActivity(), EventDetailActivity.class);
                 intent.putExtra("eventId", event.getId());
                 startActivity(intent);
             }
@@ -88,82 +87,8 @@ public class EventsFragment extends ListFragment {
         dao.close();
     }
 
-    public void refreshEvents() {
-    }
-
-    //Todo: DialogFragment
-    public void showAddNewEventInputDialogTo() {
-        LayoutInflater layoutInflater = LayoutInflater.from(getContext());
-        View promptView = layoutInflater.inflate(R.layout.dialog_add_event, null);
-
-        final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
-        alertDialogBuilder.setView(promptView);
-
-        final CheckBox isNowEventCheckBox = (CheckBox) promptView.findViewById(R.id.is_now_event_check_box);
-        final DatePicker datePicker = (DatePicker) promptView.findViewById(R.id.date_picker);
-        final TimePicker timePicker = (TimePicker) promptView.findViewById(R.id.time_picker);
-        timePicker.setIs24HourView(true);
-        datePicker.setVisibility(View.GONE);
-        timePicker.setVisibility(View.GONE);
-
-        isNowEventCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    datePicker.setVisibility(View.GONE);
-                    timePicker.setVisibility(View.GONE);
-                } else {
-                    datePicker.setVisibility(View.VISIBLE);
-                    timePicker.setVisibility(View.VISIBLE);
-                }
-            }
-        });
-
-        final EditText newEventNameEditText = (EditText) promptView.findViewById(R.id.new_event_name);
-        alertDialogBuilder.setCancelable(false);
-        alertDialogBuilder.setPositiveButton(getString(R.string.save), new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
-                String newEventNameString = newEventNameEditText.getText().toString();
-                EventDao dao = new EventDao();
-
-                if (TextUtils.isEmpty(newEventNameString)) {
-                    Toast.makeText(getContext(), getString(R.string.toast_event_without_name), Toast.LENGTH_SHORT).show();
-                } else if (dao.isSuchNameEventExist(newEventNameString)) {
-                    Toast.makeText(getContext(), getString(R.string.toast_event_with_name_which_exists), Toast.LENGTH_SHORT).show();
-                } else {
-                    Event newEvent = new Event();
-                    newEvent.setName(newEventNameString);
-
-                    if (isNowEventCheckBox.isChecked()) {
-                        newEvent.getEventOccurrences().add(new EventOccurrence(getCurrentData()));
-                    } else {
-                        int selectedHour, selectedMinute;
-
-                        if (Build.VERSION.SDK_INT >= 23) {
-                            selectedHour = timePicker.getHour();
-                            selectedMinute = timePicker.getMinute();
-                        } else {
-                            selectedHour = timePicker.getCurrentHour();
-                            selectedMinute = timePicker.getCurrentMinute();
-                        }
-                        DateTime userSetDate = new DateTime(datePicker.getYear(), datePicker.getMonth() + 1, datePicker.getDayOfMonth(), selectedHour, selectedMinute);
-                        newEvent.getEventOccurrences().add(new EventOccurrence(userSetDate.toDate()));
-                    }
-                    dao.insertNewEvent(newEvent);
-                    refreshEvents();
-                }
-            }
-
-        });
-        alertDialogBuilder.setNegativeButton(getString(R.string.cancel),
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        dialog.cancel();
-                    }
-                });
-
-        AlertDialog alert = alertDialogBuilder.create();
-        alert.show();
+    public void refreshEventsList() {
+        getListView().invalidateViews();
     }
 
     private Date getCurrentData() {

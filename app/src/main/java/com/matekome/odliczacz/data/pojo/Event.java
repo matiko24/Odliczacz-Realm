@@ -6,6 +6,7 @@ import java.util.List;
 public class Event {
     private int id;
     private String name;
+    private boolean isPrivate;
     private List<EventOccurrence> eventOccurrences;
 
     public Event() {
@@ -26,6 +27,14 @@ public class Event {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public boolean isPrivate() {
+        return isPrivate;
+    }
+
+    public void setPrivate(boolean aPrivate) {
+        isPrivate = aPrivate;
     }
 
     public List<EventOccurrence> getEventOccurrences() {

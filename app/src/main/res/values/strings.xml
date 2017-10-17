@@ -22,7 +22,7 @@
     <string name="since_event">Od wydarzenia mineło:</string>
     <string name="description">Opis</string>
     <string name="add_event_occurrence">Dodaj nowe wystapienie tego wydarzenia</string>
-    <string name="empty_list_message">Nie dodałeś rzadnych wydarzeń</string>
+    <string name="empty_list_message">Nie dodałeś żadnych wydarzeń</string>
 
     <string-array name="units_of_time">
         <item>Okres</item>
@@ -42,5 +42,11 @@
     <string name="save_image">Save description image</string>
     <string name="refresh_events_menu_option">refresh events</string>
     <string name="delete_imagebutton_description">delete event image button</string>
+    <string name="new_event_message">Nowe wydarzenie</string>
+    <string name="event_message">Wydarzenie</string>
+    <string name="back_arrow">&lt;-</string>
+    <string name="enter_password">Wpisz hasło</string>
+    <string name="private_event">prywatne</string>
+    <string name="set_password_message">Ustaw hasło dla ukrytych prywatnych wydarzeń</string>
 
 </resources>

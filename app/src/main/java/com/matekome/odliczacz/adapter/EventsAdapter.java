@@ -10,14 +10,22 @@ import com.matekome.odliczacz.R;
 import com.matekome.odliczacz.data.MyPeriod;
 import com.matekome.odliczacz.data.realm.EventRealm;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import io.realm.RealmBaseAdapter;
 import io.realm.RealmResults;
 
 public class EventsAdapter extends RealmBaseAdapter<EventRealm> {
 
-    private static class ViewHolder {
+    static class ViewHolder {
+        @BindView(R.id.event_name_text_view)
         TextView eventName;
+        @BindView(R.id.difference_between_today_and_event_occurrence_text_view)
         TextView eventDate;
+
+        private ViewHolder(View view) {
+            ButterKnife.bind(this, view);
+        }
     }
 
     public EventsAdapter(@Nullable RealmResults<EventRealm> data) {
@@ -30,9 +38,7 @@ public class EventsAdapter extends RealmBaseAdapter<EventRealm> {
 
         if (view == null) {
             view = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.row_event, viewGroup, false);
-            viewHolder = new ViewHolder();
-            viewHolder.eventName = (TextView) view.findViewById(R.id.event_name);
-            viewHolder.eventDate = (TextView) view.findViewById(R.id.event_elapsed_time);
+            viewHolder = new ViewHolder(view);
             view.setTag(viewHolder);
         } else {
             viewHolder = (ViewHolder) view.getTag();
@@ -41,7 +47,7 @@ public class EventsAdapter extends RealmBaseAdapter<EventRealm> {
         if (adapterData != null) {
             EventRealm event = adapterData.get(position);
             viewHolder.eventName.setText(event.getName());
-            viewHolder.eventDate.setText(MyPeriod.getPeriodToDisplay(event.getEventOccurrences().last().getDate()));
+            viewHolder.eventDate.setText(MyPeriod.getPeriodToDisplay(event.getEventOccurrences().first().getDate()));
         }
 
         return view;

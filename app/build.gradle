@@ -8,9 +8,9 @@ android {
         applicationId "com.matekome.odliczacz"
         minSdkVersion 15
         targetSdkVersion 25
-        versionName '1.2'
+        versionName '1.5'
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-        versionCode 3
+        versionCode 6
     }
     buildTypes {
         release {
@@ -36,5 +36,7 @@ dependencies {
     compile 'com.android.support:support-v4:25.3.1'
     compile 'joda-time:joda-time:2.9.9'
     compile 'io.realm:android-adapters:2.1.0'
+    compile 'com.jakewharton:butterknife:8.8.1'
     testCompile 'junit:junit:4.12'
+    annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
 }

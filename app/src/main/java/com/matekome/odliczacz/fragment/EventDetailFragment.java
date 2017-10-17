@@ -13,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
+import android.widget.CheckBox;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -22,8 +23,7 @@ import android.widget.TimePicker;
 import android.widget.Toast;
 
 import com.matekome.odliczacz.R;
-import com.matekome.odliczacz.activity.EventDetailActivity;
-import com.matekome.odliczacz.activity.EventsActivity;
+import com.matekome.odliczacz.activity.MainActivity;
 import com.matekome.odliczacz.data.MyPeriod;
 import com.matekome.odliczacz.data.db.EventDao;
 import com.matekome.odliczacz.data.pojo.Event;
@@ -41,14 +41,24 @@ import org.joda.time.format.DateTimeFormatter;
 
 import java.util.Date;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
+
 public class EventDetailFragment extends Fragment {
 
+    @BindView(R.id.event_date_text_view)
     TextView tvEventDate;
+    @BindView(R.id.event_name_text_view)
     TextView tvEventName;
+    @BindView(R.id.difference_between_today_and_event_occurrence_text_view)
     TextView tvDifferenceBetweenTodayandEventOccurrence;
+    @BindView(R.id.since_or_to_text_view)
     TextView tvSinceOrToEvent;
+    @BindView(R.id.event_description)
     EditText etvEventDescription;
+    @BindView(R.id.spinner)
     Spinner spinnerUniteOfTime;
+    @BindView(R.id.save_description_button)
     ImageButton imbtSaveEventOccurenceDescription;
     Event event;
     EventOccurrence displayedEventOccurrence;
@@ -66,8 +76,15 @@ public class EventDetailFragment extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_event_details, container, false);
+        ButterKnife.bind(this, view);
 
-        findViews(view);
+        return view;
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+
         initializeEvent(eventId);
 
         imbtSaveEventOccurenceDescription.setOnClickListener(new View.OnClickListener() {
@@ -90,8 +107,6 @@ public class EventDetailFragment extends Fragment {
             public void onNothingSelected(AdapterView<?> parent) {
             }
         });
-
-        return view;
     }
 
     private void updateEventOccurrenceDescription(String newDescription) {
@@ -119,19 +134,22 @@ public class EventDetailFragment extends Fragment {
     }
 
     private void deleteEvent() {
-        //Todo: usunąć
-        Intent intent = new Intent(getContext(), EventsActivity.class);
+        dao.deleteEventById(eventId);
+        Intent intent = new Intent(getContext(), MainActivity.class);
         startActivity(intent);
     }
 
     public void showEditingEventNameDialog() {
         LayoutInflater layoutInflater = LayoutInflater.from(getContext());
         View promptView = layoutInflater.inflate(R.layout.dialog_edit_event_name, null);
-
+        //Todo: ButterKnife
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
         alertDialogBuilder.setView(promptView);
 
         final EditText editingEventName = (EditText) promptView.findViewById(R.id.editing_event_name);
+        final CheckBox isPrivateEventCheckBox = (CheckBox) promptView.findViewById(R.id.is_private_event_check_box);
+        editingEventName.setHint(event.getName());
+        isPrivateEventCheckBox.setChecked(event.isPrivate());
 
         alertDialogBuilder.setMessage(getString(R.string.change_event_name_information)).setCancelable(false).setPositiveButton(getString(R.string.save), new DialogInterface.OnClickListener() {
 
@@ -140,14 +158,15 @@ public class EventDetailFragment extends Fragment {
                 String newEventName = editingEventName.getText().toString();
 
                 if (newEventName.equals("")) {
-                    Toast.makeText(getContext(), "Nie można zapisać wydarzenia bez nazwy", Toast.LENGTH_SHORT).show();
+                    event.setPrivate(isPrivateEventCheckBox.isChecked());
+                    dao.updateEvent(event);
                 } else if (dao.isSuchNameEventExist(newEventName)) {
                     Toast.makeText(getContext(), "Wydarzenie o takiej nazwie już istnieje", Toast.LENGTH_SHORT).show();
                 } else {
-                    tvEventName.setText(editingEventName.getText().toString());
-                    Intent intent = new Intent(getContext(), EventDetailActivity.class);
-                    intent.putExtra("eventId", editingEventName.getText().toString());
-                    startActivity(intent);
+                    tvEventName.setText(newEventName);
+                    event.setName(newEventName);
+                    event.setPrivate(isPrivateEventCheckBox.isChecked());
+                    dao.updateEvent(event);
                 }
             }
         }).setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
@@ -205,7 +224,7 @@ public class EventDetailFragment extends Fragment {
 
     public void setLastEventOccurrenceValues() {
         event = dao.getEventById(event.getId());
-        EventOccurrence lastEventOccurrence = event.getEventOccurrences().get(event.getEventOccurrences().size() - 1);
+        EventOccurrence lastEventOccurrence = event.getEventOccurrences().get(0);
         setEventDetails(lastEventOccurrence);
     }
 
@@ -267,16 +286,6 @@ public class EventDetailFragment extends Fragment {
 
         AlertDialog alert = alertDialogBuilder.create();
         alert.show();
-    }
-
-    private void findViews(View view) {
-        tvEventDate = (TextView) view.findViewById(R.id.event_date_text_view);
-        tvEventName = (TextView) view.findViewById(R.id.event_name);
-        tvDifferenceBetweenTodayandEventOccurrence = (TextView) view.findViewById(R.id.event_elapsed_time);
-        tvSinceOrToEvent = (TextView) view.findViewById(R.id.sinceOrToString);
-        spinnerUniteOfTime = (Spinner) view.findViewById(R.id.spinner);
-        etvEventDescription = (EditText) view.findViewById(R.id.event_description);
-        imbtSaveEventOccurenceDescription = (ImageButton) view.findViewById(R.id.save_description_button);
     }
 
     private void hideKeyboard() {

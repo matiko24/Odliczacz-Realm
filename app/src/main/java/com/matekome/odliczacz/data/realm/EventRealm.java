@@ -8,6 +8,7 @@ public class EventRealm extends RealmObject {
     @PrimaryKey
     private int id;
     private String name;
+    private boolean isPrivate;
     private RealmList<EventOccurrenceRealm> eventOccurrences;
 
     public EventRealm() {
@@ -28,6 +29,14 @@ public class EventRealm extends RealmObject {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public boolean isPrivate() {
+        return isPrivate;
+    }
+
+    public void setPrivate(boolean aPrivate) {
+        isPrivate = aPrivate;
     }
 
     public RealmList<EventOccurrenceRealm> getEventOccurrences() {

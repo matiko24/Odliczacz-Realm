@@ -13,6 +13,7 @@ public class EventMapper {
         Event event = new Event();
         event.setId(eventRealm.getId());
         event.setName(eventRealm.getName());
+        event.setPrivate(eventRealm.isPrivate());
         List<EventOccurrence> eventOccurrences = new ArrayList<>();
         for (EventOccurrenceRealm eventOccurrenceRealm : eventRealm.getEventOccurrences()) {
             EventOccurrence eventOccurrence = new EventOccurrence(eventOccurrenceRealm.getDate());

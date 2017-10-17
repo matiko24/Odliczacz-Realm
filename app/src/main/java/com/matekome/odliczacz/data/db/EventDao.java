@@ -22,37 +22,50 @@ public class EventDao {
         realm.close();
     }
 
-    public RealmResults<EventRealm> getAllEvents() {
-        RealmResults<EventRealm> all = realm.where(EventRealm.class).findAll();
+    public RealmResults<EventRealm> getAllEvents(boolean showPrivateEvents) {
+        RealmResults<EventRealm> all = realm.where(EventRealm.class).equalTo("isPrivate", showPrivateEvents).findAll();
         return all;
     }
 
     public Event getEventById(int eventId) {
-        EventRealm eventRealm = realm.where(EventRealm.class).equalTo("id", eventId).findFirst();
         EventMapper eventMapper = new EventMapper();
+        EventRealm eventRealm = realm.where(EventRealm.class).equalTo("id", eventId).findFirst();
         return eventMapper.fromRealm(eventRealm);
     }
 
-    private Event getEventByName(String name) {
-        EventRealm eventRealm = realm.where(EventRealm.class).equalTo("name", name).findFirst();
-        if (eventRealm != null)
-            return new EventMapper().fromRealm(eventRealm);
-        else
-            return null;
-    }
-
-    //Todo: zwracać w metodzie czy dodało
     public void insertNewEvent(Event event) {
         realm.beginTransaction();
 
-        EventRealm eventRealm = realm.createObject(EventRealm.class, generateId());
-        eventRealm.setName(event.getName());
+        EventRealm newRealmEvent = realm.createObject(EventRealm.class, generateId());
+        EventOccurrenceRealm newEventOccurrenceRealm = new EventOccurrenceRealm();
 
-        EventOccurrenceRealm realmObject = new EventOccurrenceRealm();
-        realmObject.setDate(event.getEventOccurrences().get(0).getDate());
-        eventRealm.getEventOccurrences().add(realmObject);
+        newRealmEvent.setName(event.getName());
+        newRealmEvent.setPrivate(event.isPrivate());
+        newEventOccurrenceRealm.setDate(event.getEventOccurrences().get(0).getDate());
+        newRealmEvent.getEventOccurrences().add(newEventOccurrenceRealm);
 
         realm.commitTransaction();
+    }
+
+    public void updateEvent(final Event event) {
+        realm.executeTransactionAsync(new Realm.Transaction() {
+            @Override
+            public void execute(Realm realm) {
+                EventRealm eventRealm = realm.where(EventRealm.class).equalTo("id", event.getId()).findFirst();
+                eventRealm.setName(event.getName());
+                eventRealm.setPrivate(event.isPrivate());
+            }
+        });
+
+    }
+
+    public void deleteEventById(final int id) {
+        realm.executeTransactionAsync(new Realm.Transaction() {
+            @Override
+            public void execute(Realm realm) {
+                realm.where(EventRealm.class).equalTo("id", id).findFirst().deleteFromRealm();
+            }
+        });
     }
 
     public RealmList<EventOccurrenceRealm> getEventOccurrencesByEventId(int id) {
@@ -60,14 +73,44 @@ public class EventDao {
         return eventRealm.getEventOccurrences();
     }
 
-    public void addEventOccurrence(Event event, Date date) {
-        EventRealm eventRealm = realm.where(EventRealm.class).equalTo("id", event.getId()).findFirst();
+    public void addEventOccurrence(final Event event, final Date date) {
 
-        realm.beginTransaction();
-        EventOccurrenceRealm eventOccurrenceRealm = new EventOccurrenceRealm();
-        eventOccurrenceRealm.setDate(date);
-        eventRealm.getEventOccurrences().add(eventOccurrenceRealm);
-        realm.commitTransaction();
+        realm.executeTransactionAsync(new Realm.Transaction() {
+            @Override
+            public void execute(Realm realm) {
+                EventRealm eventRealm = realm.where(EventRealm.class).equalTo("id", event.getId()).findFirst();
+
+                EventOccurrenceRealm eventOccurrenceRealm = new EventOccurrenceRealm();
+                eventOccurrenceRealm.setDate(date);
+                RealmList<EventOccurrenceRealm> eventOccurrences = eventRealm.getEventOccurrences();
+                int size = eventOccurrences.size();
+
+                if (size == 0) {
+                    eventOccurrences.add(eventOccurrenceRealm);
+                } else if (size == 1) {
+                    if (eventOccurrences.get(0).getDate().compareTo(date) < 0)
+                        eventOccurrences.add(0, eventOccurrenceRealm);
+                } else if (size > 1) {
+                    if (eventOccurrences.first().getDate().compareTo(date) < 0)
+                        eventOccurrences.add(0, eventOccurrenceRealm);
+                    else if (eventOccurrences.last().getDate().compareTo(date) > 0)
+                        eventOccurrences.add(size, eventOccurrenceRealm);
+                    else {
+                        int i = 0;
+                        while (i < size - 1) {
+                            Date d1 = eventOccurrences.get(i).getDate();
+                            Date d2 = eventOccurrences.get(i + 1).getDate();
+                            if (d1.compareTo(date) > 0 && d2.compareTo(date) < 0) {
+                                eventOccurrences.add(i + 1, eventOccurrenceRealm);
+                                break;
+                            } else
+                                i++;
+                        }
+                    }
+                }
+
+            }
+        });
     }
 
     public void udpateEventOccurence(EventOccurrence eventOccurrence) {
@@ -80,10 +123,8 @@ public class EventDao {
     }
 
     public boolean isSuchNameEventExist(String eventName) {
-        if (getEventByName(eventName) == null)
-            return false;
-        else
-            return true;
+        EventRealm eventRealm = realm.where(EventRealm.class).equalTo("name", eventName).findFirst();
+        return (eventRealm != null);
     }
 
     private long generateId() {
