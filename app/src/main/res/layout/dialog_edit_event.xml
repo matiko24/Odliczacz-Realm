@@ -5,7 +5,7 @@
     android:orientation="vertical">
 
     <EditText
-        android:id="@+id/editing_event_name"
+        android:id="@+id/dialog_edit_event_edtv_event_new_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center"
@@ -18,7 +18,7 @@
         android:orientation="horizontal">
 
         <CheckBox
-            android:id="@+id/is_private_event_check_box"
+            android:id="@+id/fragment_new_event_chb_is_private_event"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 

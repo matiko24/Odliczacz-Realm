@@ -7,10 +7,10 @@ public class Event {
     private int id;
     private String name;
     private boolean isPrivate;
-    private List<EventOccurrence> eventOccurrences;
+    private List<EventLog> eventLogs;
 
     public Event() {
-        eventOccurrences = new ArrayList<>();
+        eventLogs = new ArrayList<>();
     }
 
     public int getId() {
@@ -37,16 +37,12 @@ public class Event {
         isPrivate = aPrivate;
     }
 
-    public List<EventOccurrence> getEventOccurrences() {
-        return eventOccurrences;
+    public List<EventLog> getEventLogs() {
+        return eventLogs;
     }
 
-    public void setEventOccurrences(List<EventOccurrence> eventOccurrences) {
-        this.eventOccurrences = eventOccurrences;
+    public void setEventLogs(List<EventLog> eventLogs) {
+        this.eventLogs = eventLogs;
     }
 
-    @Override
-    public String toString() {
-        return name;
-    }
 }

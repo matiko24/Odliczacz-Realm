@@ -7,7 +7,7 @@
     <include layout="@layout/toolbar" />
 
     <fragment
-        android:id="@+id/event_detail_fragment"
+        android:id="@+id/fragment_event_detail"
         android:name="com.matekome.odliczacz.fragment.EventDetailFragment"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -15,8 +15,8 @@
         android:layout_marginTop="@dimen/spacing_normal" />
 
     <fragment
-        android:id="@+id/event_occurrence_fragment"
-        android:name="com.matekome.odliczacz.fragment.EventOccurrenceFragment"
+        android:id="@+id/fragment_event_occurrence"
+        android:name="com.matekome.odliczacz.fragment.EventLogFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginLeft="@dimen/spacing_small"

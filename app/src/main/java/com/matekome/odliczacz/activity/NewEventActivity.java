@@ -1,12 +1,13 @@
 package com.matekome.odliczacz.activity;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 
 import com.matekome.odliczacz.R;
-import com.matekome.odliczacz.fragment.NewEventFragment;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -30,12 +31,16 @@ public class NewEventActivity extends AppCompatActivity {
         toolbar.setNavigationOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                onBackPressed();
-                NewEventFragment fragment = (NewEventFragment) getSupportFragmentManager().findFragmentById(R.id.new_event_fragment);
-                fragment.hideKeyboard();
+                finish();
+                hideKeyboard();
             }
         });
 
+    }
+
+    private void hideKeyboard() {
+        InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Activity.INPUT_METHOD_SERVICE);
+        inputMethodManager.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
     }
 
 }

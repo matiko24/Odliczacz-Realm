@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.ListFragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,15 +22,15 @@ import com.matekome.odliczacz.data.realm.EventRealm;
 import java.util.Date;
 
 @SuppressLint("ValidFragment")
-public class EventsFragment extends ListFragment {
+public class EventsListFragment extends ListFragment {
     EventsAdapter adapter;
     EventDao dao = new EventDao();
     boolean showPrivateEvents;
 
-    public EventsFragment() {
+    public EventsListFragment() {
     }
 
-    public EventsFragment(boolean showPrivateEvents) {
+    public EventsListFragment(boolean showPrivateEvents) {
         this.showPrivateEvents = showPrivateEvents;
     }
 
@@ -45,7 +44,6 @@ public class EventsFragment extends ListFragment {
         View view = inflater.inflate(R.layout.fragment_events_list, container, false);
         adapter = new EventsAdapter(dao.getAllEvents(showPrivateEvents));
         setListAdapter(adapter);
-        Log.d("Events fragment : ", String.valueOf(showPrivateEvents));
         return view;
     }
 
@@ -59,7 +57,7 @@ public class EventsFragment extends ListFragment {
 
                 EventMapper mapper = new EventMapper();
                 Event event = mapper.fromRealm(adapter.getItem(position));
-                dao.addEventOccurrence(event, getCurrentData());
+                dao.addEventLog(event, getCurrentData());
 
                 Toast.makeText(getActivity(), getString(R.string.toast_reset_date), Toast.LENGTH_SHORT).show();
                 return true;

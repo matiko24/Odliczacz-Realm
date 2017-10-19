@@ -8,9 +8,9 @@ android {
         applicationId "com.matekome.odliczacz"
         minSdkVersion 15
         targetSdkVersion 25
-        versionName '1.5'
+        versionName '1.7'
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-        versionCode 6
+        versionCode 8
     }
     buildTypes {
         release {

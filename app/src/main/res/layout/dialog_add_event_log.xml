@@ -13,14 +13,14 @@
         android:textSize="@dimen/font_normal" />
 
     <DatePicker
-        android:id="@+id/date_picker"
+        android:id="@+id/fragment_new_event_dp_event_log_date"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:calendarViewShown="false"
         android:datePickerMode="spinner" />
 
     <TimePicker
-        android:id="@+id/time_picker"
+        android:id="@+id/fragment_new_event_tp_event_log_time"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:timePickerMode="spinner" />

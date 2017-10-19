@@ -11,7 +11,7 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.matekome.odliczacz.R;
-import com.matekome.odliczacz.data.realm.EventOccurrenceRealm;
+import com.matekome.odliczacz.data.realm.EventLogRealm;
 import com.matekome.odliczacz.fragment.EventDetailFragment;
 
 import org.joda.time.DateTime;
@@ -26,22 +26,22 @@ import io.realm.OrderedRealmCollection;
 import io.realm.Realm;
 import io.realm.RealmBaseAdapter;
 
-public class EventOccurrencesAdapter extends RealmBaseAdapter<EventOccurrenceRealm> {
+public class EventLogAdapter extends RealmBaseAdapter<EventLogRealm> {
     private EventDetailFragment fragment;
     private Context context;
 
     static class ViewHolder {
-        @BindView(R.id.event_history)
+        @BindView(R.id.row_event_log_event_log_date)
         TextView date;
-        @BindView(R.id.delete_button)
+        @BindView(R.id.row_event_log_imbtn_delete_event_log)
         ImageButton delete;
 
-        public ViewHolder(View view) {
+        private ViewHolder(View view) {
             ButterKnife.bind(this, view);
         }
     }
 
-    public EventOccurrencesAdapter(Context context, @Nullable OrderedRealmCollection<EventOccurrenceRealm> data, EventDetailFragment fragment) {
+    public EventLogAdapter(Context context, @Nullable OrderedRealmCollection<EventLogRealm> data, EventDetailFragment fragment) {
         super(data);
         this.fragment = fragment;
         this.context = context;
@@ -52,7 +52,7 @@ public class EventOccurrencesAdapter extends RealmBaseAdapter<EventOccurrenceRea
         ViewHolder viewHolder;
 
         if (view == null) {
-            view = LayoutInflater.from(context).inflate(R.layout.row_event_occurrence, viewGroup, false);
+            view = LayoutInflater.from(context).inflate(R.layout.row_event_log, viewGroup, false);
             viewHolder = new ViewHolder(view);
             view.setTag(viewHolder);
         } else {
@@ -60,10 +60,10 @@ public class EventOccurrencesAdapter extends RealmBaseAdapter<EventOccurrenceRea
         }
 
         if (adapterData != null) {
-            final EventOccurrenceRealm eventOccurrence = adapterData.get(i);
-            Date eventOccurrenceDate = eventOccurrence.getDate();
+            final EventLogRealm eventLog = adapterData.get(i);
+            Date eventLogDate = eventLog.getDate();
             DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("dd.MM.YYYY HH:mm");
-            DateTime eventDate = new DateTime(eventOccurrenceDate);
+            DateTime eventDate = new DateTime(eventLogDate);
 
             viewHolder.date.setText(eventDate.toString(dateTimeFormatter));
 
@@ -85,8 +85,9 @@ public class EventOccurrencesAdapter extends RealmBaseAdapter<EventOccurrenceRea
                             });
 
                             if (adapterData.size() > 0)
-                                fragment.setLastEventOccurrenceValues();
-                            //Todo: usuń całe wydarzenie jeśli ostatnie wystąpienie jest usunięte
+                                fragment.setLastEventLogValues();
+                            else
+                                fragment.deleteEvent();
 
                         }
                     }).setNegativeButton(context.getString(R.string.no), new DialogInterface.OnClickListener() {

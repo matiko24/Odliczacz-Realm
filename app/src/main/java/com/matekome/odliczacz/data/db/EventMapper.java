@@ -1,26 +1,30 @@
 package com.matekome.odliczacz.data.db;
 
 import com.matekome.odliczacz.data.pojo.Event;
-import com.matekome.odliczacz.data.pojo.EventOccurrence;
-import com.matekome.odliczacz.data.realm.EventOccurrenceRealm;
+import com.matekome.odliczacz.data.pojo.EventLog;
+import com.matekome.odliczacz.data.realm.EventLogRealm;
 import com.matekome.odliczacz.data.realm.EventRealm;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class EventMapper {
+
     public Event fromRealm(EventRealm eventRealm) {
         Event event = new Event();
+        List<EventLog> eventLogs = new ArrayList<>();
+
         event.setId(eventRealm.getId());
         event.setName(eventRealm.getName());
         event.setPrivate(eventRealm.isPrivate());
-        List<EventOccurrence> eventOccurrences = new ArrayList<>();
-        for (EventOccurrenceRealm eventOccurrenceRealm : eventRealm.getEventOccurrences()) {
-            EventOccurrence eventOccurrence = new EventOccurrence(eventOccurrenceRealm.getDate());
-            eventOccurrence.setDescription(eventOccurrenceRealm.getDescription());
-            eventOccurrences.add(eventOccurrence);
+
+        for (EventLogRealm eventLogRealm : eventRealm.getEventLogs()) {
+            EventLog eventLog = new EventLog(eventLogRealm.getDate());
+            eventLog.setDescription(eventLogRealm.getDescription());
+            eventLogs.add(eventLog);
         }
-        event.setEventOccurrences(eventOccurrences);
+        event.setEventLogs(eventLogs);
+
         return event;
     }
 }

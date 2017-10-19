@@ -1,5 +1,6 @@
 package com.matekome.odliczacz.activity;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -24,7 +25,12 @@ public class SetPasswordActivity extends AppCompatActivity implements LoginFragm
     }
 
     @Override
-    public void login() {
-
+    public void logIn(String password) {
+        SharedPreferences sharedPreferences = getSharedPreferences("odliczacz.preferences", MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean("firstRun", false);
+        editor.putString("password", password);
+        editor.commit();
+        finish();
     }
 }

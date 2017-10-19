@@ -13,7 +13,7 @@ import android.view.MenuItem;
 
 import com.matekome.odliczacz.R;
 import com.matekome.odliczacz.adapter.MyPagerAdapter;
-import com.matekome.odliczacz.fragment.EventsFragment;
+import com.matekome.odliczacz.fragment.EventsListFragment;
 import com.matekome.odliczacz.fragment.LoginFragment;
 
 import butterknife.BindView;
@@ -22,43 +22,43 @@ import butterknife.ButterKnife;
 public class MainActivity extends AppCompatActivity implements LoginFragment.OnLoginListener {
     @BindView(R.id.toolbar)
     Toolbar toolbar;
-    @BindView(R.id.pager)
-    ViewPager pager;
+    @BindView(R.id.activity_main_view_pager)
+    ViewPager viewPager;
     @BindView(R.id.tabs)
     TabLayout tabs;
-    MyPagerAdapter adapter;
+    MyPagerAdapter myPagerAdapter;
+    SharedPreferences sharedPreferences;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        sharedPreferences = getSharedPreferences("odliczacz.preferences", Context.MODE_PRIVATE);
 
-        SharedPreferences sharedPreferences = getSharedPreferences("odliczacz.preferences", Context.MODE_PRIVATE);
-        boolean firstRun = sharedPreferences.getBoolean("firstRun", true);
-
-        if (firstRun) {
+        if (isFirstRun()) {
             Intent intent = new Intent(this, SetPasswordActivity.class);
             startActivity(intent);
         }
 
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
-
         setSupportActionBar(toolbar);
-
         setTitle(getString(R.string.your_events));
 
-        adapter = new MyPagerAdapter(getSupportFragmentManager(), false);
-        pager.setAdapter(adapter);
-        tabs.setupWithViewPager(pager);
+        myPagerAdapter = new MyPagerAdapter(getSupportFragmentManager(), this, false);
+        viewPager.setAdapter(myPagerAdapter);
+        tabs.setupWithViewPager(viewPager);
+    }
+
+    private boolean isFirstRun() {
+        return sharedPreferences.getBoolean("firstRun", true);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        SharedPreferences sharedPreferences = getSharedPreferences("odliczacz.preferences", MODE_PRIVATE);
-        boolean isLogin = sharedPreferences.getBoolean("isLogin", false);
-        adapter = new MyPagerAdapter(getSupportFragmentManager(), isLogin);
-        pager.setAdapter(adapter);
+        boolean isLogin = sharedPreferences.getBoolean("isLogged", false);
+        myPagerAdapter = new MyPagerAdapter(getSupportFragmentManager(), this, isLogin);
+        viewPager.setAdapter(myPagerAdapter);
     }
 
     @Override
@@ -69,33 +69,41 @@ public class MainActivity extends AppCompatActivity implements LoginFragment.OnL
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        EventsFragment currentFragment = (EventsFragment) pager.getAdapter().instantiateItem(pager, pager.getCurrentItem());
+        EventsListFragment currentFragment = (EventsListFragment) viewPager.getAdapter().instantiateItem(viewPager, viewPager.getCurrentItem());
 
         switch (item.getItemId()) {
             case R.id.refresh:
                 currentFragment.refreshEventsList();
                 break;
-            case R.id.add_event_fab:
+            case R.id.fragment_new_event_fab_add_event:
                 Intent intent = new Intent(this, NewEventActivity.class);
+                intent.putExtra("lastPageWasPrivateEventsList", isCurrentPagePrivateEventsList());
                 startActivity(intent);
                 break;
         }
-
         return super.onOptionsItemSelected(item);
+    }
+
+    private boolean isCurrentPagePrivateEventsList() {
+        int currentPageId = viewPager.getCurrentItem();
+        return currentPageId == 1;
     }
 
     @Override
     public void onBackPressed() {
-        SharedPreferences sharedPreferences = getSharedPreferences("odliczacz.preferences", MODE_PRIVATE);
-        SharedPreferences.Editor editor = sharedPreferences.edit();
-        editor.putBoolean("isLogin", false);
-        editor.commit();
+        setLogged(false);
         moveTaskToBack(true);
     }
 
+    private void setLogged(boolean isLogged) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putBoolean("isLogged", isLogged);
+        editor.commit();
+    }
+
     @Override
-    public void login() {
-        adapter.replaceFragment();
-        adapter.notifyDataSetChanged();
+    public void logIn(String password) {
+        setLogged(true);
+        myPagerAdapter.replaceFragment();
     }
 }

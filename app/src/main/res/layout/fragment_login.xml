@@ -22,28 +22,28 @@
         android:orientation="horizontal">
 
         <RadioButton
-            android:id="@+id/radio_button_1"
+            android:id="@+id/fragment_login_rb_password_1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:buttonTint="@color/green"
             android:enabled="false" />
 
         <RadioButton
-            android:id="@+id/radio_button_2"
+            android:id="@+id/fragment_login_rb_password_2"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:buttonTint="@color/green"
             android:enabled="false" />
 
         <RadioButton
-            android:id="@+id/radio_button_3"
+            android:id="@+id/fragment_login_rb_password_3"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:buttonTint="@color/green"
             android:enabled="false" />
 
         <RadioButton
-            android:id="@+id/radio_button_4"
+            android:id="@+id/fragment_login_rb_password_4"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:buttonTint="@color/green"
@@ -59,73 +59,73 @@
         android:orientation="horizontal">
 
         <Button
-            android:id="@+id/btn_1"
+            android:id="@+id/fragment_login_btn_1"
             android:layout_width="100dp"
             android:layout_height="60dp"
             android:text="1" />
 
         <Button
-            android:id="@+id/btn_2"
+            android:id="@+id/fragment_login_btn_2"
             android:layout_width="100dp"
             android:layout_height="60dp"
             android:text="2" />
 
         <Button
-            android:id="@+id/btn_3"
+            android:id="@+id/fragment_login_btn_3"
             android:layout_width="100dp"
             android:layout_height="60dp"
             android:text="3" />
 
         <Button
-            android:id="@+id/btn_4"
+            android:id="@+id/fragment_login_btn_4"
             android:layout_width="100dp"
             android:layout_height="60dp"
             android:text="4" />
 
         <Button
-            android:id="@+id/btn_5"
+            android:id="@+id/fragment_login_btn_5"
             android:layout_width="100dp"
             android:layout_height="60dp"
             android:text="5" />
 
         <Button
-            android:id="@+id/btn_6"
+            android:id="@+id/fragment_login_btn_6"
             android:layout_width="100dp"
             android:layout_height="60dp"
             android:text="6" />
 
         <Button
-            android:id="@+id/btn_7"
+            android:id="@+id/fragment_login_btn_7"
             android:layout_width="100dp"
             android:layout_height="60dp"
             android:text="7" />
 
         <Button
-            android:id="@+id/btn_8"
+            android:id="@+id/fragment_login_btn_8"
             android:layout_width="100dp"
             android:layout_height="60dp"
             android:text="8" />
 
         <Button
-            android:id="@+id/btn_9"
+            android:id="@+id/fragment_login_btn_9"
             android:layout_width="100dp"
             android:layout_height="60dp"
             android:text="9" />
 
         <Button
-            android:id="@+id/btn_clear"
+            android:id="@+id/fragment_login_btn_clear"
             android:layout_width="100dp"
             android:layout_height="60dp"
             android:text="@string/back_arrow" />
 
         <Button
-            android:id="@+id/btn_0"
+            android:id="@+id/fragment_login_btn_0"
             android:layout_width="100dp"
             android:layout_height="60dp"
             android:text="0" />
 
         <Button
-            android:id="@+id/btn_ok"
+            android:id="@+id/fragment_login_btn_ok"
             android:layout_width="100dp"
             android:layout_height="60dp"
             android:text="OK" />

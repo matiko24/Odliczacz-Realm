@@ -2,11 +2,11 @@ package com.matekome.odliczacz.data.pojo;
 
 import java.util.Date;
 
-public class EventOccurrence {
+public class EventLog {
     private Date date;
     private String description;
 
-    public EventOccurrence(Date date) {
+    public EventLog(Date date) {
         this.date = date;
         this.description = "";
     }

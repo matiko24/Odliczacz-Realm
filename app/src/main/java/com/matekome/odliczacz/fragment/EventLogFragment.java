@@ -11,22 +11,22 @@ import android.view.ViewGroup;
 import android.widget.ListView;
 
 import com.matekome.odliczacz.R;
-import com.matekome.odliczacz.adapter.EventOccurrencesAdapter;
+import com.matekome.odliczacz.adapter.EventLogAdapter;
 import com.matekome.odliczacz.data.db.EventDao;
-import com.matekome.odliczacz.data.pojo.EventOccurrence;
-import com.matekome.odliczacz.data.realm.EventOccurrenceRealm;
+import com.matekome.odliczacz.data.pojo.EventLog;
+import com.matekome.odliczacz.data.realm.EventLogRealm;
 
 import io.realm.RealmList;
 
-public class EventOccurrenceFragment extends ListFragment {
+public class EventLogFragment extends ListFragment {
 
-    EventOccurrencesAdapter adapter;
+    EventLogAdapter adapter;
     int eventId;
     EventDao dao;
-    OnEventOccurrenceSelectedListener mCallback;
+    OnEventLogSelectedListener mCallback;
 
-    public interface OnEventOccurrenceSelectedListener {
-        void onEventOccurrenceSelected(EventOccurrence eventOccurrence);
+    public interface OnEventLogSelectedListener {
+        void onEventLogSelected(EventLog eventLog);
     }
 
     @Override
@@ -34,7 +34,7 @@ public class EventOccurrenceFragment extends ListFragment {
         super.onAttach(context);
 
         if (context instanceof Activity) {
-            mCallback = (OnEventOccurrenceSelectedListener) context;
+            mCallback = (OnEventLogSelectedListener) context;
         }
     }
 
@@ -47,7 +47,7 @@ public class EventOccurrenceFragment extends ListFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_event_occurances, container, false);
+        View view = inflater.inflate(R.layout.fragment_event_log, container, false);
         return view;
     }
 
@@ -55,20 +55,20 @@ public class EventOccurrenceFragment extends ListFragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        RealmList<EventOccurrenceRealm> eventOccurrences = dao.getEventOccurrencesByEventId(eventId);
-        EventDetailFragment fragment = (EventDetailFragment) getActivity().getSupportFragmentManager().findFragmentById(R.id.event_detail_fragment);
+        RealmList<EventLogRealm> eventLogs = dao.getEventLogsByEventId(eventId);
+        EventDetailFragment fragment = (EventDetailFragment) getActivity().getSupportFragmentManager().findFragmentById(R.id.fragment_event_detail);
 
-        adapter = new EventOccurrencesAdapter(getContext(), eventOccurrences, fragment);
+        adapter = new EventLogAdapter(getContext(), eventLogs, fragment);
         setListAdapter(adapter);
     }
 
     @Override
     public void onListItemClick(ListView l, View v, int position, long id) {
-        EventOccurrenceRealm eventOccurrenceRealm = adapter.getItem(position);
-        EventOccurrence eventOccurrence = new EventOccurrence(eventOccurrenceRealm.getDate());
-        eventOccurrence.setDescription(eventOccurrenceRealm.getDescription());
+        EventLogRealm eventLogRealm = adapter.getItem(position);
+        EventLog eventLog = new EventLog(eventLogRealm.getDate());
+        eventLog.setDescription(eventLogRealm.getDescription());
 
-        mCallback.onEventOccurrenceSelected(eventOccurrence);
+        mCallback.onEventLogSelected(eventLog);
     }
 
     @Override

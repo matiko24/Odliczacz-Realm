@@ -18,9 +18,9 @@ import io.realm.RealmResults;
 public class EventsAdapter extends RealmBaseAdapter<EventRealm> {
 
     static class ViewHolder {
-        @BindView(R.id.event_name_text_view)
+        @BindView(R.id.row_event_tv_event_name)
         TextView eventName;
-        @BindView(R.id.difference_between_today_and_event_occurrence_text_view)
+        @BindView(R.id.row_event_tv_difference_between_today_and_event_log)
         TextView eventDate;
 
         private ViewHolder(View view) {
@@ -47,7 +47,7 @@ public class EventsAdapter extends RealmBaseAdapter<EventRealm> {
         if (adapterData != null) {
             EventRealm event = adapterData.get(position);
             viewHolder.eventName.setText(event.getName());
-            viewHolder.eventDate.setText(MyPeriod.getPeriodToDisplay(event.getEventOccurrences().first().getDate()));
+            viewHolder.eventDate.setText(MyPeriod.getPeriodToDisplay(event.getEventLogs().first().getDate()));
         }
 
         return view;

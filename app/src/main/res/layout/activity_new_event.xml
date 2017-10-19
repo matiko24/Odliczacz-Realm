@@ -9,7 +9,7 @@
     <include layout="@layout/toolbar" />
 
     <fragment
-        android:id="@+id/new_event_fragment"
+        android:id="@+id/fragment_new_event"
         android:name="com.matekome.odliczacz.fragment.NewEventFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />

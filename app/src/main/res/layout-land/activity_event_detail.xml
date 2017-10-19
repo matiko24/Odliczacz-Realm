@@ -26,7 +26,7 @@
         android:orientation="horizontal">
 
         <fragment
-            android:id="@+id/event_detail_fragment"
+            android:id="@+id/fragment_event_detail"
             android:name="com.matekome.odliczacz.fragment.EventDetailFragment"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -41,8 +41,8 @@
             android:background="@color/green_light" />
 
         <fragment
-            android:id="@+id/event_occurrence_fragment"
-            android:name="com.matekome.odliczacz.fragment.EventOccurrenceFragment"
+            android:id="@+id/fragment_event_occurrence"
+            android:name="com.matekome.odliczacz.fragment.EventLogFragment"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="@dimen/spacing_normal"

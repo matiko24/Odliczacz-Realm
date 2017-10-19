@@ -19,53 +19,61 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class LoginFragment extends Fragment implements View.OnClickListener {
-    @BindView(R.id.radio_button_1)
+    @BindView(R.id.fragment_login_rb_password_1)
     RadioButton radioButton1;
-    @BindView(R.id.radio_button_2)
+    @BindView(R.id.fragment_login_rb_password_2)
     RadioButton radioButton2;
-    @BindView(R.id.radio_button_3)
+    @BindView(R.id.fragment_login_rb_password_3)
     RadioButton radioButton3;
-    @BindView(R.id.radio_button_4)
+    @BindView(R.id.fragment_login_rb_password_4)
     RadioButton radioButton4;
-    @BindView(R.id.btn_0)
+    @BindView(R.id.fragment_login_btn_0)
     Button btn_0;
-    @BindView(R.id.btn_1)
+    @BindView(R.id.fragment_login_btn_1)
     Button btn_1;
-    @BindView(R.id.btn_2)
+    @BindView(R.id.fragment_login_btn_2)
     Button btn_2;
-    @BindView(R.id.btn_3)
+    @BindView(R.id.fragment_login_btn_3)
     Button btn_3;
-    @BindView(R.id.btn_4)
+    @BindView(R.id.fragment_login_btn_4)
     Button btn_4;
-    @BindView(R.id.btn_5)
+    @BindView(R.id.fragment_login_btn_5)
     Button btn_5;
-    @BindView(R.id.btn_6)
+    @BindView(R.id.fragment_login_btn_6)
     Button btn_6;
-    @BindView(R.id.btn_7)
+    @BindView(R.id.fragment_login_btn_7)
     Button btn_7;
-    @BindView(R.id.btn_8)
+    @BindView(R.id.fragment_login_btn_8)
     Button btn_8;
-    @BindView(R.id.btn_9)
+    @BindView(R.id.fragment_login_btn_9)
     Button btn_9;
-    @BindView(R.id.btn_clear)
+    @BindView(R.id.fragment_login_btn_clear)
     Button btn_clear;
-    @BindView(R.id.btn_ok)
+    @BindView(R.id.fragment_login_btn_ok)
     Button btn_ok;
-    SharedPreferences sharedPreferences;
-    String password = "";
+    String stringToCompareWithPassword = "";
+    String password;
     OnLoginListener loginListener;
+    boolean firstRun;
 
     public interface OnLoginListener {
-        void login();
+        void logIn(String password);
     }
 
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-
         if (context instanceof Activity) {
             loginListener = (OnLoginListener) context;
         }
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        SharedPreferences sharedPreferences = getActivity().getSharedPreferences("odliczacz.preferences", Context.MODE_PRIVATE);
+        firstRun = sharedPreferences.getBoolean("firstRun", true);
+        password = sharedPreferences.getString("password", null);
     }
 
     @Nullable
@@ -73,6 +81,7 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_login, container, false);
         ButterKnife.bind(this, view);
+
         btn_0.setOnClickListener(this);
         btn_1.setOnClickListener(this);
         btn_2.setOnClickListener(this);
@@ -85,70 +94,53 @@ public class LoginFragment extends Fragment implements View.OnClickListener {
         btn_9.setOnClickListener(this);
         btn_clear.setOnClickListener(this);
         btn_ok.setOnClickListener(this);
+
         return view;
     }
 
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
-            case R.id.btn_clear:
-                if (password.length() > 0)
-                    password = password.substring(0, password.length() - 1);
+            case R.id.fragment_login_btn_clear:
+                if (stringToCompareWithPassword.length() > 0)
+                    stringToCompareWithPassword = stringToCompareWithPassword.substring(0, stringToCompareWithPassword.length() - 1);
                 break;
-            case R.id.btn_ok:
-                if (password.length() == 4) {
-                    SharedPreferences sharedPreferences = getActivity().getSharedPreferences("odliczacz.preferences", Context.MODE_PRIVATE);
-                    boolean firstRun = sharedPreferences.getBoolean("firstRun", true);
-                    if (firstRun) {
-                        SharedPreferences.Editor editor = sharedPreferences.edit();
-                        editor.putBoolean("firstRun", false);
-                        editor.putString("password", password);
-                        editor.commit();
-                        getActivity().finish();
-                    } else
-                        login(password);
+            case R.id.fragment_login_btn_ok:
+                if (stringToCompareWithPassword.length() == 4) {
+                    tryToLogIn(stringToCompareWithPassword);
                 } else {
-                    resetPasswordAndDotsWithMessage("Hasło powinno zawierać 4 cyfry");
+                    resetPasswordWithMessage(getString(R.string.wrong_password_length_message));
                 }
                 break;
             default:
-                SharedPreferences sharedPreferences = getActivity().getSharedPreferences("odliczacz.preferences", Context.MODE_PRIVATE);
-                boolean firstRun = sharedPreferences.getBoolean("firstRun", true);
                 Button button = (Button) view;
                 String buttonText = button.getText().toString();
-                password += buttonText;
-                if (password.length() == 4)
+
+                stringToCompareWithPassword += buttonText;
+                if (stringToCompareWithPassword.length() == 4)
                     if (!firstRun)
-                        login(password);
+                        tryToLogIn(stringToCompareWithPassword);
                 break;
         }
-
-        setDots(password.length());
+        setDots(stringToCompareWithPassword.length());
     }
 
-    private void resetPasswordAndDotsWithMessage(String message) {
-        Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
-        password = "";
-        setDots(0);
-    }
-
-    private void login(String password) {
-        if (checkPassword(password)) {
-            SharedPreferences sharedPreferences = getActivity().getSharedPreferences("odliczacz.preferences", Context.MODE_PRIVATE);
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.putBoolean("isLogin", true);
-            editor.commit();
-            loginListener.login();
+    private void tryToLogIn(String password) {
+        if (firstRun || checkPassword(password)) {
+            loginListener.logIn(password);
         } else {
-            resetPasswordAndDotsWithMessage("Błędne hasło");
+            resetPasswordWithMessage("Błędne hasło");
         }
     }
 
     private boolean checkPassword(String password) {
-        SharedPreferences sharedPreferences = getActivity().getSharedPreferences("odliczacz.preferences", Context.MODE_PRIVATE);
-        String correctPassword = sharedPreferences.getString("password", "0");
-        boolean passwordCorrect = correctPassword.equals(password);
-        return passwordCorrect;
+        return this.password.equals(password);
+    }
+
+    private void resetPasswordWithMessage(String message) {
+        Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
+        stringToCompareWithPassword = "";
+        setDots(0);
     }
 
     public void setDots(int passwordLength) {

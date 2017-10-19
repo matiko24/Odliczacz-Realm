@@ -9,10 +9,10 @@ public class EventRealm extends RealmObject {
     private int id;
     private String name;
     private boolean isPrivate;
-    private RealmList<EventOccurrenceRealm> eventOccurrences;
+    private RealmList<EventLogRealm> eventLogs;
 
     public EventRealm() {
-        eventOccurrences = new RealmList<>();
+        eventLogs = new RealmList<>();
     }
 
     public int getId() {
@@ -39,12 +39,12 @@ public class EventRealm extends RealmObject {
         isPrivate = aPrivate;
     }
 
-    public RealmList<EventOccurrenceRealm> getEventOccurrences() {
-        return eventOccurrences;
+    public RealmList<EventLogRealm> getEventLogs() {
+        return eventLogs;
     }
 
-    public void setEventOccurrences(RealmList<EventOccurrenceRealm> eventOccurrences) {
-        this.eventOccurrences = eventOccurrences;
+    public void setEventLogs(RealmList<EventLogRealm> eventLogs) {
+        this.eventLogs = eventLogs;
     }
 
 }

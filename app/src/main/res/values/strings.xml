@@ -34,6 +34,11 @@
         <item>Sekund</item>
     </string-array>
 
+    <string-array name="view_pager_tabs_names">
+        <item>Publiczne</item>
+        <item>Prywatne</item>
+    </string-array>
+
     <!-- programing  -->
     <string name="app_name">Odliczacz</string>
     <string name="action_settings">Settings</string>
@@ -48,5 +53,6 @@
     <string name="enter_password">Wpisz hasło</string>
     <string name="private_event">prywatne</string>
     <string name="set_password_message">Ustaw hasło dla ukrytych prywatnych wydarzeń</string>
+    <string name="wrong_password_length_message">\"Hasło powinno zawierać 4 cyfry\"</string>
 
 </resources>

@@ -1,8 +1,8 @@
 package com.matekome.odliczacz.data.db;
 
 import com.matekome.odliczacz.data.pojo.Event;
-import com.matekome.odliczacz.data.pojo.EventOccurrence;
-import com.matekome.odliczacz.data.realm.EventOccurrenceRealm;
+import com.matekome.odliczacz.data.pojo.EventLog;
+import com.matekome.odliczacz.data.realm.EventLogRealm;
 import com.matekome.odliczacz.data.realm.EventRealm;
 
 import java.util.Date;
@@ -37,12 +37,12 @@ public class EventDao {
         realm.beginTransaction();
 
         EventRealm newRealmEvent = realm.createObject(EventRealm.class, generateId());
-        EventOccurrenceRealm newEventOccurrenceRealm = new EventOccurrenceRealm();
+        EventLogRealm newEventLogRealm = new EventLogRealm();
 
         newRealmEvent.setName(event.getName());
         newRealmEvent.setPrivate(event.isPrivate());
-        newEventOccurrenceRealm.setDate(event.getEventOccurrences().get(0).getDate());
-        newRealmEvent.getEventOccurrences().add(newEventOccurrenceRealm);
+        newEventLogRealm.setDate(event.getEventLogs().get(0).getDate());
+        newRealmEvent.getEventLogs().add(newEventLogRealm);
 
         realm.commitTransaction();
     }
@@ -68,40 +68,40 @@ public class EventDao {
         });
     }
 
-    public RealmList<EventOccurrenceRealm> getEventOccurrencesByEventId(int id) {
+    public RealmList<EventLogRealm> getEventLogsByEventId(int id) {
         EventRealm eventRealm = realm.where(EventRealm.class).equalTo("id", id).findFirst();
-        return eventRealm.getEventOccurrences();
+        return eventRealm.getEventLogs();
     }
 
-    public void addEventOccurrence(final Event event, final Date date) {
+    public void addEventLog(final Event event, final Date date) {
 
         realm.executeTransactionAsync(new Realm.Transaction() {
             @Override
             public void execute(Realm realm) {
                 EventRealm eventRealm = realm.where(EventRealm.class).equalTo("id", event.getId()).findFirst();
 
-                EventOccurrenceRealm eventOccurrenceRealm = new EventOccurrenceRealm();
-                eventOccurrenceRealm.setDate(date);
-                RealmList<EventOccurrenceRealm> eventOccurrences = eventRealm.getEventOccurrences();
-                int size = eventOccurrences.size();
+                EventLogRealm eventLogRealm = new EventLogRealm();
+                eventLogRealm.setDate(date);
+                RealmList<EventLogRealm> eventLogs = eventRealm.getEventLogs();
+                int size = eventLogs.size();
 
                 if (size == 0) {
-                    eventOccurrences.add(eventOccurrenceRealm);
+                    eventLogs.add(eventLogRealm);
                 } else if (size == 1) {
-                    if (eventOccurrences.get(0).getDate().compareTo(date) < 0)
-                        eventOccurrences.add(0, eventOccurrenceRealm);
+                    if (eventLogs.get(0).getDate().compareTo(date) < 0)
+                        eventLogs.add(0, eventLogRealm);
                 } else if (size > 1) {
-                    if (eventOccurrences.first().getDate().compareTo(date) < 0)
-                        eventOccurrences.add(0, eventOccurrenceRealm);
-                    else if (eventOccurrences.last().getDate().compareTo(date) > 0)
-                        eventOccurrences.add(size, eventOccurrenceRealm);
+                    if (eventLogs.first().getDate().compareTo(date) < 0)
+                        eventLogs.add(0, eventLogRealm);
+                    else if (eventLogs.last().getDate().compareTo(date) > 0)
+                        eventLogs.add(size, eventLogRealm);
                     else {
                         int i = 0;
                         while (i < size - 1) {
-                            Date d1 = eventOccurrences.get(i).getDate();
-                            Date d2 = eventOccurrences.get(i + 1).getDate();
+                            Date d1 = eventLogs.get(i).getDate();
+                            Date d2 = eventLogs.get(i + 1).getDate();
                             if (d1.compareTo(date) > 0 && d2.compareTo(date) < 0) {
-                                eventOccurrences.add(i + 1, eventOccurrenceRealm);
+                                eventLogs.add(i + 1, eventLogRealm);
                                 break;
                             } else
                                 i++;
@@ -113,12 +113,12 @@ public class EventDao {
         });
     }
 
-    public void udpateEventOccurence(EventOccurrence eventOccurrence) {
-        EventOccurrenceRealm eventOccurrenceRealm = realm.where(EventOccurrenceRealm.class).equalTo("date", eventOccurrence.getDate()).findFirst();
+    public void udpateEventOccurence(EventLog eventLog) {
+        EventLogRealm eventLogRealm = realm.where(EventLogRealm.class).equalTo("date", eventLog.getDate()).findFirst();
 
         realm.beginTransaction();
-        eventOccurrenceRealm.setDate(eventOccurrence.getDate());
-        eventOccurrenceRealm.setDescription(eventOccurrence.getDescription());
+        eventLogRealm.setDate(eventLog.getDate());
+        eventLogRealm.setDescription(eventLog.getDescription());
         realm.commitTransaction();
     }
 

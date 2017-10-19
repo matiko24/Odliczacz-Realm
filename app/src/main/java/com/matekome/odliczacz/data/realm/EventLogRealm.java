@@ -4,11 +4,12 @@ import java.util.Date;
 
 import io.realm.RealmObject;
 
-public class EventOccurrenceRealm extends RealmObject {
+public class EventLogRealm extends RealmObject {
     private Date date;
     private String description;
 
-    public EventOccurrenceRealm() {}
+    public EventLogRealm() {
+    }
 
     public Date getDate() {
         return date;

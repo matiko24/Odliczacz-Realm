@@ -22,7 +22,7 @@ import android.widget.Toast;
 import com.matekome.odliczacz.R;
 import com.matekome.odliczacz.data.db.EventDao;
 import com.matekome.odliczacz.data.pojo.Event;
-import com.matekome.odliczacz.data.pojo.EventOccurrence;
+import com.matekome.odliczacz.data.pojo.EventLog;
 
 import org.joda.time.DateTime;
 
@@ -34,24 +34,33 @@ import butterknife.OnClick;
 
 public class NewEventFragment extends Fragment {
 
-    @BindView(R.id.new_event_name)
+    @BindView(R.id.fragment_new_event_edtv_new_event_name)
     EditText newEventNameEditText;
-    @BindView(R.id.is_now_event_check_box)
+    @BindView(R.id.fragment_new_event_chb_is_now_event)
     CheckBox isNowEventCheckBox;
-    @BindView(R.id.is_private_event_check_box)
+    @BindView(R.id.fragment_new_event_chb_is_private_event)
     CheckBox isPrivateEventCheckBox;
-    @BindView(R.id.date_picker)
+    @BindView(R.id.fragment_new_event_dp_event_log_date)
     DatePicker datePicker;
-    @BindView(R.id.time_picker)
+    @BindView(R.id.fragment_new_event_tp_event_log_time)
     TimePicker timePicker;
-    @BindView(R.id.add_event_fab)
+    @BindView(R.id.fragment_new_event_fab_add_event)
     FloatingActionButton addButton;
+    boolean lastPageWasPrivateEventsList;
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        lastPageWasPrivateEventsList = getActivity().getIntent().getExtras().getBoolean("lastPageWasPrivateEventsList");
+    }
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_new_event, container, false);
         ButterKnife.bind(this, view);
+        if (lastPageWasPrivateEventsList)
+            isPrivateEventCheckBox.setChecked(true);
         timePicker.setIs24HourView(true);
         datePicker.setVisibility(View.GONE);
         timePicker.setVisibility(View.GONE);
@@ -93,7 +102,7 @@ public class NewEventFragment extends Fragment {
         });
     }
 
-    @OnClick(R.id.add_event_fab)
+    @OnClick(R.id.fragment_new_event_fab_add_event)
     public void addEvent() {
         String newEventName = newEventNameEditText.getText().toString();
         EventDao dao = new EventDao();
@@ -112,7 +121,7 @@ public class NewEventFragment extends Fragment {
             newEvent.setPrivate(isPrivateEventCheckBox.isChecked());
 
             if (isNowEventCheckBox.isChecked()) {
-                newEvent.getEventOccurrences().add(new EventOccurrence(new Date()));
+                newEvent.getEventLogs().add(new EventLog(new Date()));
             } else {
                 int selectedHour, selectedMinute;
 
@@ -124,7 +133,7 @@ public class NewEventFragment extends Fragment {
                     selectedMinute = timePicker.getCurrentMinute();
                 }
                 DateTime userSetDate = new DateTime(datePicker.getYear(), datePicker.getMonth() + 1, datePicker.getDayOfMonth(), selectedHour, selectedMinute);
-                newEvent.getEventOccurrences().add(new EventOccurrence(userSetDate.toDate()));
+                newEvent.getEventLogs().add(new EventLog(userSetDate.toDate()));
             }
             dao.insertNewEvent(newEvent);
             hideKeyboard();

@@ -8,14 +8,14 @@ import android.view.MenuItem;
 import android.view.View;
 
 import com.matekome.odliczacz.R;
-import com.matekome.odliczacz.data.pojo.EventOccurrence;
+import com.matekome.odliczacz.data.pojo.EventLog;
 import com.matekome.odliczacz.fragment.EventDetailFragment;
-import com.matekome.odliczacz.fragment.EventOccurrenceFragment;
+import com.matekome.odliczacz.fragment.EventLogFragment;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class EventDetailActivity extends AppCompatActivity implements EventOccurrenceFragment.OnEventOccurrenceSelectedListener {
+public class EventDetailActivity extends AppCompatActivity implements EventLogFragment.OnEventLogSelectedListener {
     @BindView(R.id.toolbar)
     Toolbar toolbar;
     EventDetailFragment eventDetailFragment;
@@ -39,7 +39,7 @@ public class EventDetailActivity extends AppCompatActivity implements EventOccur
             }
         });
 
-        eventDetailFragment = (EventDetailFragment) getSupportFragmentManager().findFragmentById(R.id.event_detail_fragment);
+        eventDetailFragment = (EventDetailFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_event_detail);
     }
 
     @Override
@@ -65,7 +65,7 @@ public class EventDetailActivity extends AppCompatActivity implements EventOccur
     }
 
     @Override
-    public void onEventOccurrenceSelected(EventOccurrence eventOccurrence) {
-        eventDetailFragment.setEventDetails(eventOccurrence);
+    public void onEventLogSelected(EventLog eventLog) {
+        eventDetailFragment.setEventLogDetails(eventLog);
     }
 }

@@ -9,6 +9,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
@@ -27,7 +28,7 @@ import com.matekome.odliczacz.activity.MainActivity;
 import com.matekome.odliczacz.data.MyPeriod;
 import com.matekome.odliczacz.data.db.EventDao;
 import com.matekome.odliczacz.data.pojo.Event;
-import com.matekome.odliczacz.data.pojo.EventOccurrence;
+import com.matekome.odliczacz.data.pojo.EventLog;
 
 import org.joda.time.DateTime;
 import org.joda.time.Days;
@@ -46,22 +47,22 @@ import butterknife.ButterKnife;
 
 public class EventDetailFragment extends Fragment {
 
-    @BindView(R.id.event_date_text_view)
+    @BindView(R.id.fragment_event_details_tv_event_date)
     TextView tvEventDate;
-    @BindView(R.id.event_name_text_view)
+    @BindView(R.id.fragment_event_details_tv_event_name)
     TextView tvEventName;
-    @BindView(R.id.difference_between_today_and_event_occurrence_text_view)
-    TextView tvDifferenceBetweenTodayandEventOccurrence;
-    @BindView(R.id.since_or_to_text_view)
+    @BindView(R.id.fragment_event_details_tv_difference_between_today_and_event_log)
+    TextView tvDifferenceBetweenTodayandEventLog;
+    @BindView(R.id.fragment_event_details_tv_since_or_to_message)
     TextView tvSinceOrToEvent;
-    @BindView(R.id.event_description)
-    EditText etvEventDescription;
-    @BindView(R.id.spinner)
+    @BindView(R.id.fragment_event_details_edtv_event_description)
+    EditText etvEventLogDescription;
+    @BindView(R.id.fragment_event_details_spn_period)
     Spinner spinnerUniteOfTime;
-    @BindView(R.id.save_description_button)
+    @BindView(R.id.fragment_event_details_btn_save_description)
     ImageButton imbtSaveEventOccurenceDescription;
     Event event;
-    EventOccurrence displayedEventOccurrence;
+    EventLog displayedEventLog;
     EventDao dao;
     int eventId;
 
@@ -77,6 +78,7 @@ public class EventDetailFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_event_details, container, false);
         ButterKnife.bind(this, view);
+        imbtSaveEventOccurenceDescription.setVisibility(View.GONE);
 
         return view;
     }
@@ -87,12 +89,20 @@ public class EventDetailFragment extends Fragment {
 
         initializeEvent(eventId);
 
+        etvEventLogDescription.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                imbtSaveEventOccurenceDescription.setVisibility(View.VISIBLE);
+                return false;
+            }
+        });
+
         imbtSaveEventOccurenceDescription.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String newDescription = etvEventDescription.getText().toString();
-                updateEventOccurrenceDescription(newDescription);
-
+                String newDescription = etvEventLogDescription.getText().toString();
+                updateEventLogDescription(newDescription);
+                imbtSaveEventOccurenceDescription.setVisibility(View.GONE);
                 hideKeyboard();
             }
         });
@@ -100,7 +110,7 @@ public class EventDetailFragment extends Fragment {
         spinnerUniteOfTime.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                setDifferenceBetweenTodayAndEventOccurrence(displayedEventOccurrence.getDate());
+                setDifferenceBetweenTodayAndEventLog(displayedEventLog.getDate());
             }
 
             @Override
@@ -109,9 +119,15 @@ public class EventDetailFragment extends Fragment {
         });
     }
 
-    private void updateEventOccurrenceDescription(String newDescription) {
-        displayedEventOccurrence.setDescription(newDescription);
-        dao.udpateEventOccurence(displayedEventOccurrence);
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        dao.close();
+    }
+
+    private void updateEventLogDescription(String newDescription) {
+        displayedEventLog.setDescription(newDescription);
+        dao.udpateEventOccurence(displayedEventLog);
     }
 
     public void showDeleteEventDialog() {
@@ -133,21 +149,22 @@ public class EventDetailFragment extends Fragment {
         alertDialog.show();
     }
 
-    private void deleteEvent() {
+    public void deleteEvent() {
         dao.deleteEventById(eventId);
         Intent intent = new Intent(getContext(), MainActivity.class);
         startActivity(intent);
     }
 
+    //Todo: Osobno
     public void showEditingEventNameDialog() {
         LayoutInflater layoutInflater = LayoutInflater.from(getContext());
-        View promptView = layoutInflater.inflate(R.layout.dialog_edit_event_name, null);
+        View promptView = layoutInflater.inflate(R.layout.dialog_edit_event, null);
         //Todo: ButterKnife
         AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
         alertDialogBuilder.setView(promptView);
 
-        final EditText editingEventName = (EditText) promptView.findViewById(R.id.editing_event_name);
-        final CheckBox isPrivateEventCheckBox = (CheckBox) promptView.findViewById(R.id.is_private_event_check_box);
+        final EditText editingEventName = (EditText) promptView.findViewById(R.id.dialog_edit_event_edtv_event_new_name);
+        final CheckBox isPrivateEventCheckBox = (CheckBox) promptView.findViewById(R.id.fragment_new_event_chb_is_private_event);
         editingEventName.setHint(event.getName());
         isPrivateEventCheckBox.setChecked(event.isPrivate());
 
@@ -180,7 +197,7 @@ public class EventDetailFragment extends Fragment {
         alertDialog.show();
     }
 
-    public void setDifferenceBetweenTodayAndEventOccurrence(Date eventDate) {
+    public void setDifferenceBetweenTodayAndEventLog(Date eventDate) {
         int position = spinnerUniteOfTime.getSelectedItemPosition();
         DateTime dtCurrentDate = new DateTime();
         DateTime dtEventDate = new DateTime(eventDate);
@@ -213,48 +230,49 @@ public class EventDetailFragment extends Fragment {
         else
             tvSinceOrToEvent.setText(getString(R.string.since_event));
 
-        tvDifferenceBetweenTodayandEventOccurrence.setText(textToSet);
+        tvDifferenceBetweenTodayandEventLog.setText(textToSet);
     }
 
     private void initializeEvent(int eventId) {
         this.event = dao.getEventById(eventId);
         tvEventName.setText(event.getName());
-        setLastEventOccurrenceValues();
+        setLastEventLogValues();
     }
 
-    public void setLastEventOccurrenceValues() {
+    public void setLastEventLogValues() {
         event = dao.getEventById(event.getId());
-        EventOccurrence lastEventOccurrence = event.getEventOccurrences().get(0);
-        setEventDetails(lastEventOccurrence);
+        EventLog lastEventLog = event.getEventLogs().get(0);
+        setEventLogDetails(lastEventLog);
     }
 
-    public void setEventDetails(EventOccurrence eventOccurrence) {
-        displayedEventOccurrence = eventOccurrence;
+    public void setEventLogDetails(EventLog eventLog) {
+        displayedEventLog = eventLog;
 
-        Date occurrenceDate = eventOccurrence.getDate();
-        String occurrenceDescription = eventOccurrence.getDescription();
+        Date eventLogDate = eventLog.getDate();
+        String eventLogDescription = eventLog.getDescription();
 
-        DateTime dtEventDate = new DateTime(occurrenceDate);
+        DateTime dtEventDate = new DateTime(eventLogDate);
         DateTimeFormatter dateTimeFormatter = DateTimeFormat.forPattern("dd.MM.YYYY HH:mm");
         tvEventDate.setText(dtEventDate.toString(dateTimeFormatter));
 
-        setDifferenceBetweenTodayAndEventOccurrence(eventOccurrence.getDate());
+        setDifferenceBetweenTodayAndEventLog(eventLog.getDate());
 
-        if (occurrenceDescription != null)
-            etvEventDescription.setText(occurrenceDescription);
+        if (eventLogDescription != null)
+            etvEventLogDescription.setText(eventLogDescription);
         else
-            etvEventDescription.setText(null);
+            etvEventLogDescription.setText(null);
     }
 
+    //Todo: osobna klasa
     public void showAddEventOccurenceDialog() {
         LayoutInflater layoutInflater = LayoutInflater.from(getContext());
-        View promptView = layoutInflater.inflate(R.layout.dialog_add_event_occurrence, null);
+        View promptView = layoutInflater.inflate(R.layout.dialog_add_event_log, null);
 
         final AlertDialog.Builder alertDialogBuilder = new AlertDialog.Builder(getContext());
         alertDialogBuilder.setView(promptView);
 
-        final DatePicker datePicker = (DatePicker) promptView.findViewById(R.id.date_picker);
-        final TimePicker timePicker = (TimePicker) promptView.findViewById(R.id.time_picker);
+        final DatePicker datePicker = (DatePicker) promptView.findViewById(R.id.fragment_new_event_dp_event_log_date);
+        final TimePicker timePicker = (TimePicker) promptView.findViewById(R.id.fragment_new_event_tp_event_log_time);
         timePicker.setIs24HourView(true);
 
         alertDialogBuilder.setCancelable(false);
@@ -272,8 +290,8 @@ public class EventDetailFragment extends Fragment {
                 }
 
                 DateTime userSetDate = new DateTime(datePicker.getYear(), datePicker.getMonth() + 1, datePicker.getDayOfMonth(), selectedHour, selectedMinute);
-                dao.addEventOccurrence(event, userSetDate.toDate());
-                setLastEventOccurrenceValues();
+                dao.addEventLog(event, userSetDate.toDate());
+                setLastEventLogValues();
             }
 
         });
@@ -289,15 +307,13 @@ public class EventDetailFragment extends Fragment {
     }
 
     private void hideKeyboard() {
-        etvEventDescription.clearFocus();
+        etvEventLogDescription.clearFocus();
         InputMethodManager inputManager = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
         inputManager.hideSoftInputFromWindow(getActivity().getCurrentFocus().getWindowToken(),
                 InputMethodManager.HIDE_NOT_ALWAYS);
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        dao.close();
+    public Event getEvent() {
+        return event;
     }
 }
